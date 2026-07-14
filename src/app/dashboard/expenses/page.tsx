@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { currency, dateOnly, getErrorMessage } from "@/lib/utils";
 import type { Expense } from "@/lib/types";
 import { PageHeader, Banner, Spinner, EmptyState, Card } from "@/components/ui";
@@ -9,11 +10,13 @@ import { PageHeader, Banner, Spinner, EmptyState, Card } from "@/components/ui";
 const today = new Date();
 
 export default function ExpensesHistoryPage() {
+  const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
+  const isAdmin = user?.role === "Admin";
 
   async function load() {
     setIsLoading(true);
@@ -68,7 +71,7 @@ export default function ExpensesHistoryPage() {
                 <th className="px-5 py-3 font-medium">Category</th>
                 <th className="px-5 py-3 font-medium">Amount</th>
                 <th className="px-5 py-3 font-medium">Note</th>
-                <th className="px-5 py-3"></th>
+                {isAdmin && <th className="px-5 py-3"></th>}
               </tr>
             </thead>
             <tbody>
@@ -79,11 +82,13 @@ export default function ExpensesHistoryPage() {
                   <td className="px-5 py-3">{expense.category}</td>
                   <td className="px-5 py-3 num text-amber">{currency(expense.amount)}</td>
                   <td className="px-5 py-3 text-ink-faint">{expense.note ?? "—"}</td>
-                  <td className="px-5 py-3 text-right">
-                    <button onClick={() => handleDelete(expense.id)} className="btn-danger">
-                      Delete
-                    </button>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-5 py-3 text-right">
+                      <button onClick={() => handleDelete(expense.id)} className="btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -93,7 +98,7 @@ export default function ExpensesHistoryPage() {
                 <td></td>
                 <td></td>
                 <td className="px-5 py-3 num font-medium text-amber">{currency(total)}</td>
-                <td colSpan={2}></td>
+                <td colSpan={isAdmin ? 2 : 1}></td>
               </tr>
             </tfoot>
           </table>

@@ -23,15 +23,16 @@ export interface Meal {
   date: string; // ISO datetime string
   count: number;
   isGuest: boolean;
-  GuestCount: number;
+  guestCount?: number | null;
+  GuestCount?: number | null;
   note?: string | null;
 }
 
 export interface Expense {
   id: number;
   userId: number;
-  date: string; // ISO datetime string
-  countDate: string; // ISO datetime string — the month/period this expense counts toward
+  date?: string | null; // ISO datetime string
+  countDate?: string | null; // ISO datetime string — the month/period this expense counts toward
   category: string;
   amount: number;
   note?: string | null;

@@ -17,8 +17,20 @@ export function formatMonth(year: number, month: number): string {
   });
 }
 
-export function dateOnly(isoString: string): string {
-  return isoString.slice(0, 10);
+export function dateOnly(value: string | null | undefined): string {
+  if (typeof value !== "string") return "—";
+
+  const trimmed = value.trim();
+  if (!trimmed) return "—";
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
+    return trimmed.slice(0, 10);
+  }
+
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) return "—";
+
+  return parsed.toISOString().slice(0, 10);
 }
 
 export function currency(amount: number): string {

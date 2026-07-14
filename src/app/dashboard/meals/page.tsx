@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { dateOnly, getErrorMessage } from "@/lib/utils";
 import type { Meal } from "@/lib/types";
 import { PageHeader, Banner, Spinner, EmptyState, Card } from "@/components/ui";
@@ -9,20 +10,22 @@ import { PageHeader, Banner, Spinner, EmptyState, Card } from "@/components/ui";
 const today = new Date();
 
 function formatGuestCount(meal: Meal) {
-  if (!meal.isGuest) return "—";
+  const rawValue = meal.guestCount ?? meal.GuestCount;
+  if (rawValue != null && !Number.isNaN(Number(rawValue))) {
+    return Number(rawValue).toFixed(1);
+  }
 
-  const rawValue = meal.guestCount;
-  if (rawValue == null || Number.isNaN(Number(rawValue))) return "—";
-
-  return Number(rawValue).toFixed(1);
+  return meal.isGuest ? "—" : "0.0";
 }
 
 export default function MealsHistoryPage() {
+  const { user } = useAuth();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
+  const isAdmin = user?.role === "Admin";
 
   async function load() {
     setIsLoading(true);
@@ -51,7 +54,8 @@ export default function MealsHistoryPage() {
     }
   }
 
-  const total = meals.reduce((sum, m) => sum + Number(m.count ?? 0) + Number(m.guestCount ?? 0), 0);
+  const total = meals.reduce((sum, m) => sum + Number(m.count ?? 0) + Number(m.guestCount ?? m.GuestCount ?? 0), 0);
+  const totalGuestCount = meals.reduce((sum, m) => sum + Number(m.guestCount ?? m.GuestCount ?? 0), 0);
 
   return (
     <div>
@@ -74,9 +78,9 @@ export default function MealsHistoryPage() {
               <tr className="text-left text-ink-faint text-xs uppercase tracking-wide border-b border-border">
                 <th className="px-5 py-3 font-medium">Date</th>
                 <th className="px-5 py-3 font-medium">Count</th>
-                <th className="px-5 py-3 font-medium">Guest</th>
+                <th className="px-5 py-3 font-medium">Guest count</th>
                 <th className="px-5 py-3 font-medium">Note</th>
-                <th className="px-5 py-3"></th>
+                {isAdmin && <th className="px-5 py-3"></th>}
               </tr>
             </thead>
             <tbody>
@@ -88,11 +92,13 @@ export default function MealsHistoryPage() {
                     {formatGuestCount(meal)}
                   </td>
                   <td className="px-5 py-3 text-ink-faint">{meal.note ?? "—"}</td>
-                  <td className="px-5 py-3 text-right">
-                    <button onClick={() => handleDelete(meal.id)} className="btn-danger">
-                      Delete
-                    </button>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-5 py-3 text-right">
+                      <button onClick={() => handleDelete(meal.id)} className="btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -100,7 +106,8 @@ export default function MealsHistoryPage() {
               <tr>
                 <td className="px-5 py-3 font-medium">Total</td>
                 <td className="px-5 py-3 num font-medium">{total.toFixed(1)}</td>
-                <td colSpan={3}></td>
+                <td className="px-5 py-3 num font-medium">{totalGuestCount.toFixed(1)}</td>
+                <td colSpan={isAdmin ? 2 : 1}></td>
               </tr>
             </tfoot>
           </table>

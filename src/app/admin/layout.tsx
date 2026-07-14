@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 
 const navItems = [
   { href: "/admin", label: "Overview" },
+  { href: "/admin/meals-expenses", label: "Meal & Expense" },
   { href: "/admin/users", label: "Users" },
 ];
 
