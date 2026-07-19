@@ -11,16 +11,16 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Edit `.env.local` if your API runs on a different URL:
+Edit `.env.local` if your API runs on a different URL. For access from another PC on the same network, use the server's LAN IP instead of `127.0.0.1`:
 ```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5118
+NEXT_PUBLIC_API_BASE_URL=http://192.168.1.50:5118
 ```
 
 ## 3. Run
 ```bash
 npm run dev
 ```
-Open http://localhost:3000 — it will redirect you to `/login`.
+Open http://localhost:3000 or http://<your-pc-ip>:3000 — it will redirect you to `/login`.
 
 ## 4. Trying it out
 1. Go to `/register`, create a normal user account — you'll land on `/dashboard`.
