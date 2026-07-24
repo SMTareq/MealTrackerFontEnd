@@ -3,7 +3,8 @@ import { tokenStore } from "./token-store";
 import type { AuthResponse } from "./types";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5118";
+  //process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5118";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8081";
 
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
